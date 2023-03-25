@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from posts.models import LEN_TEXT, Comment, Group, Post
+
+from posts.models import LEN_TEXT, Comment, Follow, Group, Post
 
 User = get_user_model()
 
@@ -10,6 +11,9 @@ class PostCommentModelTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username="auth")
+        cls.user_2 = User.objects.create_user(
+            username='another_user',
+        )
         cls.group = Group.objects.create(
             title="Тестовая группа",
             slug="Тестовый слаг",
@@ -22,6 +26,11 @@ class PostCommentModelTest(TestCase):
             post=PostCommentModelTest.post,
             author=PostCommentModelTest.user,
             text="Тестовый комментарий",
+        )
+
+        cls.follow = Follow.objects.create(
+            user=PostCommentModelTest.user_2,
+            author=PostCommentModelTest.user,
         )
 
     def test_models_have_correct_object_names(self):
@@ -82,3 +91,8 @@ class PostCommentModelTest(TestCase):
         comment = PostCommentModelTest.comment
         help_text = comment._meta.get_field("text").help_text
         self.assertEqual(help_text, "Введите комментарий")
+
+    def test_follow_verbose_name(self):
+        follow = self.follow
+        verbose_name = follow._meta.verbose_name
+        self.assertEqual(verbose_name, "Подписка")
